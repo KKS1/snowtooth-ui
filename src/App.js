@@ -1,28 +1,44 @@
 import React, { Component } from 'react';
-import logo from './logo.svg';
-import './App.css';
+import gql from 'graphql-tag';
+import { useQuery } from '@apollo/react-hooks';
 
-class App extends Component {
-  render() {
-    return (
-      <div className="App">
-        <header className="App-header">
-          <img src={logo} className="App-logo" alt="logo" />
-          <p>
-            Edit <code>src/App.js</code> and save to reload.
-          </p>
-          <a
-            className="App-link"
-            href="https://reactjs.org"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Learn React
-          </a>
-        </header>
-      </div>
-    );
+const QUERY = gql`
+  query {
+    liftCount
+    allLifts {
+      id
+      name
+      status
+    }
   }
-}
+`;
 
-export default App;
+export default function App() {
+  const { loading, data } = useQuery(QUERY);
+
+  if (loading) return <p>Loading Lifts....</p>;
+
+  return (
+    <section>
+      <h1>Snowtooth Lift Status</h1>
+      {data && !loading && (
+        <table>
+          <thead>
+            <tr>
+              <td>Lift name</td>
+              <td>Lift status</td>
+            </tr>
+          </thead>
+          <tbody>
+            {data.allLifts.map((lift, index) => (
+              <tr key={index}>
+                <td>{lift.name}</td>
+                <td>{lift.status}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
+    </section>
+  )
+};
